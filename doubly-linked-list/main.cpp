@@ -36,6 +36,42 @@ public:
         }
     }
     
+    void deleteNode(int value) {
+        Node* current = head;
+        
+        while (current != nullptr && current->data != value){
+            current = current->next;
+        }
+        
+        if(current == nullptr) {
+            std::cout << "Node with value " << value << " not found." << std::endl;
+            return;
+        }
+        
+        if(current == head) {
+            head = head->next;
+            
+            if(head != nullptr) {
+                head -> prev = nullptr;
+            }else {
+                tail = nullptr;
+            }
+        }else if(current == tail) {
+            tail = tail -> prev;
+            if(tail != nullptr) {
+                tail->next = nullptr;
+            }else {
+                head = nullptr;
+            }
+        }else {
+            current->prev->next = current->next;
+            current->next->prev = current->prev;
+        }
+        
+        delete  current;
+        std::cout << "Node with value " << value << " deleted." << std::endl;
+    }
+    
     void displayForward() {
         Node* current = head;
         
@@ -66,8 +102,12 @@ int main(int argc, const char * argv[]) {
     list.append(10);
     list.append(20);
     list.append(30);
-    
     list.displayForward();
     list.displayBackward();
+    list.deleteNode(30);
+    list.displayForward();
+    list.displayBackward();
+    
+    
     return 0;
 }
