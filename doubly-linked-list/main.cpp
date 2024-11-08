@@ -7,25 +7,27 @@
 
 #include <iostream>
 
+template <typename... T>
 struct Node {
-    Node* prev;
-    int data;
-    Node* next;
+    Node<T...>* prev;
+    std::variant<T...> data;
+    Node<T...>* next;
     
-    Node(int value) : data(value), prev(nullptr), next(nullptr) {}
+    Node(std::variant<T...> value) : data(value), prev(nullptr), next(nullptr) {}
 };
 
+template <typename... T>
 class DoublyLinkedList {
 private:
-    Node* head;
-    Node* tail;
+    Node<T...>* head;
+    Node<T...>* tail;
     
 public:
     DoublyLinkedList():head(nullptr), tail(nullptr){}
     
-    void append(int data) {
+    void append(std::variant<T...> data) {
         
-        Node* newNode = new Node(data);
+        Node<T...>* newNode = new Node<T...>(data);
         
         if(!head){
             head = tail = newNode;
@@ -36,15 +38,17 @@ public:
         }
     }
     
-    void deleteNode(int value) {
-        Node* current = head;
+    void deleteNode(std::variant<T...> value) {
+        Node<T...>* current = head;
         
         while (current != nullptr && current->data != value){
             current = current->next;
         }
         
         if(current == nullptr) {
-            std::cout << "Node with value " << value << " not found." << std::endl;
+            std::cout << "Node with value ";
+            std::visit([](const auto& v) { std::cout << v; }, value);
+            std::cout << " not found." << std::endl;
             return;
         }
         
@@ -69,38 +73,50 @@ public:
         }
         
         delete  current;
-        std::cout << "Node with value " << value << " deleted." << std::endl;
+//        std::cout << "Node with value " << value << " deleted." << std::endl;
+        std::cout << "Node with value ";
+        std::visit([](const auto& v) { std::cout << v; }, value);
+        std::cout << " deleted." << std::endl;
     }
     
     void displayForward() {
-        Node* current = head;
+        Node<T...>* current = head;
         
         while(current) {
-            std::cout << current -> data << " -> ";
+            std::visit([](const auto& value) {std::cout << value << " -> ";}, current->data);
             current = current -> next;
         }
         std::cout << "null" << std::endl;
     }
     
     void displayBackward() {
-        Node* current = tail;
+        Node<T...>* current = tail;
         
         while(current) {
             
-            std::cout << current -> data << " -> ";
+//            std::cout << current -> data << " -> ";
+            std::visit([](const auto& value) {std::cout << value << " -> ";}, current->data);
             current = current -> prev;
         }
         
         std::cout << "null" << std::endl;
     }
     
+    ~DoublyLinkedList() {
+        Node<T...>* current = head;
+        while (current) {
+            Node<T...>* next = current->next;
+            delete current;
+            current = next;
+        }
+    }
 };
 
 int main(int argc, const char * argv[]) {
 
-    DoublyLinkedList list;
+    DoublyLinkedList<int, std::string> list;
     list.append(10);
-    list.append(20);
+    list.append("Hello");
     list.append(30);
     list.displayForward();
     list.displayBackward();
