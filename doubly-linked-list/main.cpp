@@ -38,6 +38,39 @@ public:
         }
     }
     
+    class Iterator {
+    private:
+        Node<T...>* current;
+        
+    public:
+        Iterator(Node<T...>* node) : current(node) {}
+        
+        std::variant<T...>& operator*() const {
+            return current->data;
+        }
+        
+        Iterator& operator++() {
+            if(current) current = current->next;
+            return *this;
+        }
+        
+        Iterator& operator--() {
+            if(current) current = current->prev;
+            return *this;
+        }
+        
+        bool operator==(const Iterator& other) const {
+            return current == other.current;
+        }
+        
+        bool operator!=(const Iterator& other) const {
+            return current != other.current;
+        }
+    };
+    
+    Iterator begin() { return Iterator(head); }
+    Iterator end() { return Iterator(nullptr); }
+    
     void deleteNode(std::variant<T...> value) {
         Node<T...>* current = head;
         
@@ -80,23 +113,28 @@ public:
     }
     
     void displayForward() {
-        Node<T...>* current = head;
+//        Node<T...>* current = head;
+//
+//        while(current) {
+//            std::visit([](const auto& value) {std::cout << value << " -> ";}, current->data);
+//            current = current -> next;
+//        }
         
-        while(current) {
-            std::visit([](const auto& value) {std::cout << value << " -> ";}, current->data);
-            current = current -> next;
+        for(Iterator it = begin(); it != end(); ++it) {
+            std::visit([](auto& val) { std::cout << val << " -> "; }, *it);
         }
         std::cout << "null" << std::endl;
     }
     
     void displayBackward() {
-        Node<T...>* current = tail;
+//        Node<T...>* current = tail;
         
-        while(current) {
-            
-//            std::cout << current -> data << " -> ";
-            std::visit([](const auto& value) {std::cout << value << " -> ";}, current->data);
-            current = current -> prev;
+//        while(current) {
+//            std::visit([](const auto& value) {std::cout << value << " -> ";}, current->data);
+//            current = current -> prev;
+//        }
+        for(Iterator it = Iterator(tail); it != Iterator(nullptr); --it) {
+            std::visit([](auto& val) { std::cout << val << " -> "; }, *it);
         }
         
         std::cout << "null" << std::endl;
